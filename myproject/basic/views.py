@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.db import connection
+import json
+from django.views.decorators.csrf import csrf_exempt
+from .models import StudentNew
+from .models import post 
 
 # Create your views here.
 def sample(request):
@@ -21,3 +26,177 @@ def dynamicResponse(request):
 
     #return HttpResponse(f"hello{name}")
     return HttpResponse(f"hello{name} from {city}")
+# to test database connection
+def health(request):
+    try:
+        with connection.cursor() as c:
+            c.execute("SELECT 1")
+        return JsonResponse({"status":"ok","db":"connected"})
+    except Exception as e:
+        return JsonResponse({"status":"error","db":str(e)})
+@csrf_exempt
+def addstudent(request):
+    print(request.method)
+    if request.method == "POST":
+        data = json.loads(request.body)
+        student = StudentNew.objects.create(
+            name=data.get('name'),
+            age=data.get('age'),
+            email=data.get('email')  
+        )
+        return JsonResponse({"status": "success", "id": student.id}, status=200)
+    elif request.method=="GET":
+        # results=list(StudentNew.objects.all().values())
+        # print(results)
+        # return JsonResponse({"status":"ok","data":results},status=200)
+        # get a specific record by id
+        # data = json.loads(request.body) 
+    
+        # ref_id = data.get("id")
+        # results = list(StudentNew.objects.filter(id=ref_id).values())
+        # return JsonResponse({"status": "ok", "data": results}, status=200)
+
+        # filter by age>=20
+    
+        # data = json.loads(request.body)
+        # ref_age = data.get("age")  
+        # results = list(StudentNew.objects.filter(age__gte=ref_age).values())
+        # return JsonResponse({"status": "ok", "data": results}, status=200)
+        #filter by age<=20
+        # data = json.loads(request.body)
+        # ref_age = data.get("age")  
+        # results = list(StudentNew.objects.filter(age__lte=ref_age).values())
+        # return JsonResponse({"status": "ok", "data": results}, status=200)
+        #order by name
+        # results=list(StudentNew.objects.order_by('name').values())
+        # return JsonResponse({"status":"ok","data":results},status=200)
+    
+        #get unique ages:
+        # results=list(StudentNew.objects.values('age').distinct())
+        # return JsonResponse({'status':'ok','data':results},status=200)
+    
+        # count total students:
+        # results=StudentNew.objects.count()
+        # return JsonResponse({'status':'ok',"data":results},status=200)
+
+
+
+
+    
+
+        results=list(StudentNew.objects.values())
+        print(results)
+        return JsonResponse({"status":"success","id":results},status=200)
+    
+
+    elif request.method=="PUT":
+        
+        data = json.loads(request.body)
+        ref_id=data.get("id")#get id
+        new_name=data.get("name")#fetting eamil wie request
+        existin_stu=StudentNew.objects.get(id=ref_id)
+        #print(existin_stu)
+        existin_stu.name=new_name
+        existin_stu.save()
+        updated_data=StudentNew.objects.filter(id=ref_id).values().first()
+        
+        return JsonResponse({"status":"data updated successfully","updated_data":updated_data},status=200)
+    
+    elif request.method=="DELETE":
+        data = json.loads(request.body)
+        ref_id=data.get("id")#get id
+        get_deleted_data=StudentNew.objects.filter(id=ref_id).values().first()
+        to_be_delete=StudentNew.objects.filter(id=ref_id).delete()
+        #to_be_delete.delete()
+        return JsonResponse({"status":"success","messge":"student details successfully","deleted_data":get_deleted_data},status=200)
+    
+    return JsonResponse({"error": "Use POST method"}, status=400)
+    
+
+
+def addPost(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_post = post.objects.create(   # use a different variable name
+                post_name=data.get('post_name'),
+                post_type=data.get('post_type'),
+                post_date=data.get('post_date'),
+                post_description=data.get('post_description')
+            )
+            return JsonResponse({"status": "success", "id": new_post.id}, status=201)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    return JsonResponse({"error": "Use POST method"}, status=405)
+
+
+#get,post,put,delete
+
+
+
+#get all records
+
+
+@csrf_exempt
+def get_all_students(request):
+    students=StudentNew.objects.all()
+    data=list(students.values())
+    return JsonResponse(data,safe=False)
+
+
+#get a specific record by id
+
+def get_student_by_id(request, id):
+    try:
+        student = StudentNew.objects.get(id=id)  
+        return JsonResponse({
+            "id": student.id,
+            "name": student.name,
+            "age": student.age,
+            "city": student.city
+        })
+    except StudentNew.DoesNotExist:  
+        return JsonResponse({"error": "student not found"}, status=404)
+    
+
+# filter by age>=20
+
+def filter_age_gte(request):
+    students = StudentNew.objects.filter(age__gte=20)
+    result = list(students.values())
+    return JsonResponse(result, safe=False)
+
+
+#filter by age>=20
+def filter_age_gte(request):
+    Students=StudentNew.objects.filter(age__gte=20)
+    data=list(Students.values())
+    return JsonResponse(data,safe=False)
+
+
+# order ny name
+
+def order_by_name(request):
+    Students=StudentNew.objects.order_by('name')
+    data=list(Students.values())
+    return JsonResponse(data,safe=False)
+
+#gte unique ages
+def get_unique_ages(request):
+    ages=StudentNew.objects.values_list('age',flat=True).distinct()
+    return JsonResponse({"unique_ages":list(ages)})
+
+
+#count total students
+def count_students(request):
+    total=StudentNew.objects.count()
+    return JsonResponse({"total_students":total})
+
+
+
+def job1(request):
+    return JsonResponse({"message":"u have successfully applied for job1"},status=200)
+
+
+def job2(request):
+    return JsonResponse({"message":"u hava successfully applid for job1"},status=200)    

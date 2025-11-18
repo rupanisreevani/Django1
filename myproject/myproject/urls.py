@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from basic.views import sample
-from basic.views import sample1
-from basic.views import sampleInfo
-from basic.views import dynamicResponse
+
+from basic.views import sample,sample1,sampleInfo,dynamicResponse,health,addstudent
+from basic.views import addPost,get_all_students,filter_age_gte,filter_age_gte,order_by_name,get_unique_ages,count_students
+
 
 
 urlpatterns = [
@@ -28,5 +28,14 @@ urlpatterns = [
     path('53r/',sample1),
     path('info/',sampleInfo),
     path("name/",dynamicResponse),
+    path('health/',health),
+    path('add/',addstudent),
+    path('addpost/', addPost),
+    path('student/',get_all_students),
+    path("gte/",filter_age_gte),
+    path("gte1/",filter_age_gte),
+    path("order/",order_by_name),
+    path("get/",get_unique_ages),
+    path("count/",count_students),
     
 ]

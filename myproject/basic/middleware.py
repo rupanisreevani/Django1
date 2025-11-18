@@ -1,4 +1,7 @@
 from django.http import JsonResponse
+import re
+import json
+from basic.models import Users
 
 class basicMiddleware:
     def __init__(self, get_response):  #automatically give the response #start the server then it is run
@@ -73,3 +76,63 @@ class AgeMiddleware:
             if not (18 <= age_checker <= 25):
                 return JsonResponse({"error":"age must be in between 18 and 25"},status=400)
         return self.get_response(request)
+    
+
+
+class UsernameMiddleware:
+    def __init__(self,get_response):  
+        self.get_response=get_response
+    def __call__(self,request):
+        if(request.path =="/signup/"):
+            data=json.loads(request.body)
+            username=data.get("username","")
+            #checks usersname is empty or not
+            if not username:
+                return JsonResponse({"error":"username is required"},status=400)
+            # checks length
+            if len(username)<3 or len(username)>20:
+                return JsonResponse({"error":"usernmae should contains 3 to 20 characters"},status=400)
+            # checks staring and ending
+            if username[0] in "._" or username[-1] in "._":
+                return JsonResponse({"error":"usernmae should not starts or ends with . or _"},status=400)
+            #checks allowed characters
+            if not  re.match(r"^[a-zA-Z0-9._]+$",username):
+                return JsonResponse({"error":"usernmae should contains letters ,numbers,dot,underscore"},status=400)
+            #checks .. and __
+            if ".." in username or "__"in username:
+                return JsonResponse({"error":"cannot have .. or __"},status=400)
+        return self.get_response(request)
+
+
+#email should not be empty
+#basic email pattern
+#if duplicate email found-->show email already exists
+
+class EmailMiddleware:
+    def __init__(self,get_response):  
+        self.get_response=get_response
+    def __call__(self,request):
+        if(request.path =="/signup/"):
+            data=json.loads(request.body)
+            email=data.get("email","")
+            if not email :
+                return JsonResponse({"error":"email cannot be empty"},status=400)
+            if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",email):
+                return JsonResponse ({"error":"invalid email format"},status=400)
+            if Users.objects.filter(email=email).exists():
+                return JsonResponse({"error":"email already exists"},status=400)
+        return self.get_response(request)
+
+class PasswordMiddleware:
+    def __init__(self,get_response):  
+        self.get_response=get_response
+    def __call__(self,request):
+        if(request.path =="/signup/"):
+            data=json.loads(request.body)
+            password=data.get("password","")
+            if not password:
+                return JsonResponse ({"error":"password cannot be empty"},status=400)
+            if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$",password):
+                return JsonResponse({"error":"invalid password "},status=400)
+        return self.get_response(request)
+

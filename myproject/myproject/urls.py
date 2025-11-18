@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from basic.views import sample,sample1,sampleInfo,dynamicResponse,health,addstudent
-from basic.views import addPost,get_all_students,filter_age_gte,filter_age_gte,order_by_name,get_unique_ages,count_students
+from basic.views import addPost,get_all_students,filter_age_gte,filter_age_gte,order_by_name,get_unique_ages,count_students,job1,job2
 
 
 
@@ -37,5 +37,7 @@ urlpatterns = [
     path("order/",order_by_name),
     path("get/",get_unique_ages),
     path("count/",count_students),
+    path('job1/',job1),
+    path('job2/',job2),
     
 ]

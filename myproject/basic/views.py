@@ -7,6 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import StudentNew
 from .models import post 
 from.models import Users
+from django.contrib.auth.hashers import make_password,check_password
+import jwt
+from django.conf import settings
+
 # Create your views here.
 def sample(request):
     return HttpResponse('hello world')
@@ -114,6 +118,8 @@ def addstudent(request):
     
 
 
+
+
 def addPost(request):
     if request.method == 'POST':
         try:
@@ -211,6 +217,51 @@ def signUp(request):
         user=Users.objects.create(
             username=data.get('username'),
             email=data.get('email'),
-            password=data.get('password')
+            password=make_password(data.get('password'))
             )
     return JsonResponse({"status":"success"},status=200)
+
+
+@csrf_exempt
+def login(request):
+    if request.method=="POST":
+        data=json.loads(request.body)
+        print(data)
+        username=data.get('username')
+        password=data.get('password')
+        try:
+            user=Users.objects.get(username=username)
+            if check_password(password,user.password):
+                # token="a json web token"
+                # creating jwt
+                payload={"username":username,"email":user.email,"id":user.id}
+                token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
+                return JsonResponse({"ststus":'successfully loggedin','token':token},status=200)
+            else:
+                return JsonResponse({"status":'failure','message':'invalid password'},ststus=400)
+        except Users .DoesNotExist:
+            return JsonResponse({"status":'failure','message':'user not found'},ststus=400)
+
+
+@csrf_exempt
+def check(request):
+    hashed="!80dRi6kiPX5oOOQ1dCn7ZxxhpyTaJf1Iftx1ceSh"
+    ipdata = request.POST          # Gets POST form data
+    print(ipdata)
+    x=check_password(ipdata.get("ip"),hashed)
+    print(x)
+
+    # hashed = make_password(ipdata.get("ip"))   # Hashes input value
+    # print(hashed)
+
+    return JsonResponse({"status": "success", "data":x }, status=200)
+
+@csrf_exempt
+def hashed(request):
+    if request.method == "GET":
+        users = Users.objects.all() 
+        for user in users:
+            if not user.password.startswith('pbkdf2_sha256'):
+                user.password = make_password(user.password)
+                user.save()
+        return JsonResponse({"status":"success","message":"All passwords updated"}, status=200)

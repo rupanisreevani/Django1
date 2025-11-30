@@ -79,60 +79,123 @@ class AgeMiddleware:
     
 
 
+# class UsernameMiddleware:
+#     def __init__(self,get_response):  
+#         self.get_response=get_response
+#     def __call__(self,request): 
+#         if(request.path=="/signup/")  :
+#             data=json.loads(request.body)
+#             username=data.get("username") 
+#             # checks username is empty or not
+#             if not username:
+#                 return JsonResponse({"error":"username is required"},status=400)
+#             # checks lenght
+#             if len(username)<3 or len(username)>20:
+#                 return JsonResponse({"error":"username should cntain 3 to 20 characters"},status=200)
+#             # checks starting and ending
+#             if username[0] in "." or username[-1] in ".":
+#                 return JsonResponse({"error":"username should not starts or ends with . or _"},status=400)
+#             # check allowed charcater
+#             if not re.match(r"^[a-zA-Z0-9._]+$",username):
+#                 return JsonResponse({"error":"username should not contain letters,numbers,dot,underscore"},status=400)
+#             if ".." in  username or "" in username:
+#                 return JsonResponse({"error":"cannot have .. or __"},status=400)
+#         return self.get_response(request)    
+    
+
+# #email should not be empty
+# # basic email pattern
+# # if duplicate email found-->email already exists 
+
+
+# class EmailMiddleware:
+#     def __init__(self,get_response):  
+#         self.get_response=get_response
+#     def __call__(self,request): 
+#         if(request.path=="/signup/") :
+#             data=json.loads(request.body)
+#             email=data.get("email")
+#             if not email:
+#                 return JsonResponse({"error":"email should not be empty"},status=400)
+#             if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$',email):
+#                 return JsonResponse({"error":"invalid email format"},status=400)
+#             if Users.objects.filter(email=email):
+#                 return JsonResponse({"error":"Email already exists"},status=400)
+#         return self.get_response(request)    
+
+
+# class PasswordMiddleware:
+#     def __init__(self,get_response):  
+#         self.get_response=get_response
+#     def __call__(self,request): 
+#         if(request.path=="/signup/") :
+#             data=json.loads(request.body)
+#             Password=data.get("password")
+#             if not Password:
+#                 return JsonResponse({"error":"password should not empty"},status=400)
+#             if not re.match(r'^(?=.[A-Z])(?=.[a-z])(?=.\d)(?=.[^\w\s]).{8,}$',Password):
+#                 return JsonResponse({"error":"Password must contain at least 8 characters including uppercase, lowercase, number and special character"}, status=400)
+            
+#         return self.get_response(request)
+
 class UsernameMiddleware:
-    def __init__(self,get_response):  
-        self.get_response=get_response
-    def __call__(self,request):
-        if(request.path =="/signup/"):
-            data=json.loads(request.body)
-            username=data.get("username","")
-            #checks usersname is empty or not
+    def __init__(self, get_response):  
+        self.get_response = get_response
+
+    def __call__(self, request): 
+        if request.path == "/signup/":
+            data = json.loads(request.body)
+            username = data.get("username") 
+            # checks username is empty or not
             if not username:
-                return JsonResponse({"error":"username is required"},status=400)
-            # checks length
-            if len(username)<3 or len(username)>20:
-                return JsonResponse({"error":"usernmae should contains 3 to 20 characters"},status=400)
-            # checks staring and ending
-            if username[0] in "._" or username[-1] in "._":
-                return JsonResponse({"error":"usernmae should not starts or ends with . or _"},status=400)
-            #checks allowed characters
-            if not  re.match(r"^[a-zA-Z0-9._]+$",username):
-                return JsonResponse({"error":"usernmae should contains letters ,numbers,dot,underscore"},status=400)
-            #checks .. and __
-            if ".." in username or "__"in username:
-                return JsonResponse({"error":"cannot have .. or __"},status=400)
-        return self.get_response(request)
+                return JsonResponse({"error": "username is required"}, status=400)
+            # checks lenght
+            if len(username) < 3 or len(username) > 20:
+                return JsonResponse({"error": "username should contain 3 to 20 characters"}, status=400)
+            # checks starting and ending
+            if username[0] in "." or username[-1] in ".":
+                return JsonResponse({"error": "username should not start or end with . or _"}, status=400)
+            # check allowed charcater
+            if not re.match(r"^[a-zA-Z0-9._]+$", username):
+                return JsonResponse({"error": "invalid characters in username"}, status=400)
+            if ".." in username or "__" in username:
+                return JsonResponse({"error": "cannot have .. or __"}, status=400)
 
-
-#email should not be empty
-#basic email pattern
-#if duplicate email found-->show email already exists
-
+        return self.get_response(request)    
 class EmailMiddleware:
-    def __init__(self,get_response):  
-        self.get_response=get_response
-    def __call__(self,request):
-        if(request.path =="/signup/"):
-            data=json.loads(request.body)
-            email=data.get("email","")
-            if not email :
-                return JsonResponse({"error":"email cannot be empty"},status=400)
-            if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",email):
-                return JsonResponse ({"error":"invalid email format"},status=400)
+    def __init__(self, get_response):  
+        self.get_response = get_response
+
+    def __call__(self, request): 
+        if request.path == "/signup/":
+            data = json.loads(request.body)
+            email = data.get("email")
+
+            if not email:
+                return JsonResponse({"error": "email should not be empty"}, status=400)
+
+            if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+                return JsonResponse({"error": "invalid email format"}, status=400)
+
             if Users.objects.filter(email=email).exists():
-                return JsonResponse({"error":"email already exists"},status=400)
-        return self.get_response(request)
+                return JsonResponse({"error": "email already exists"}, status=400)
 
+        return self.get_response(request)    
 class PasswordMiddleware:
-    def __init__(self,get_response):  
-        self.get_response=get_response
-    def __call__(self,request):
-        if(request.path =="/signup/"):
-            data=json.loads(request.body)
-            password=data.get("password","")
-            if not password:
-                return JsonResponse ({"error":"password cannot be empty"},status=400)
-            if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$",password):
-                return JsonResponse({"error":"invalid password "},status=400)
-        return self.get_response(request)
+    def __init__(self, get_response):  
+        self.get_response = get_response
 
+    def __call__(self, request): 
+        if request.path == "/signup/":
+            data = json.loads(request.body)
+            password = data.get("password")
+
+            if not password:
+                return JsonResponse({"error": "password should not be empty"}, status=400)
+
+            if not re.match(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^\w\s]).{8,}$', password):
+                return JsonResponse({
+                    "error": "Password must contain uppercase, lowercase, number and special character (min 8 chars)"
+                }, status=400)
+
+        return self.get_response(request)

@@ -10,6 +10,9 @@ from.models import Users
 from django.contrib.auth.hashers import make_password,check_password
 import jwt
 from django.conf import settings
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 
 # Create your views here.
 def sample(request):
@@ -96,10 +99,12 @@ def addstudent(request):
     elif request.method=="PUT":
         
         data = json.loads(request.body)
+
         ref_id=data.get("id")#get id
         new_name=data.get("name")#fetting eamil wie request
         existin_stu=StudentNew.objects.get(id=ref_id)
         #print(existin_stu)
+        
         existin_stu.name=new_name
         existin_stu.save()
         updated_data=StudentNew.objects.filter(id=ref_id).values().first()
@@ -231,12 +236,15 @@ def login(request):
         password=data.get('password')
         try:
             user=Users.objects.get(username=username)
+            issuesd_time = datetime.now(ZoneInfo("Asia/Kolkata"))
+            expired_time = issuesd_time + timedelta(minutes=25)
             if check_password(password,user.password):
                 # token="a json web token"
                 # creating jwt
-                payload={"username":username,"email":user.email,"id":user.id}
+                payload={"username":username,"email":user.email,"id":user.id,"exp":expired_time}
                 token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
-                return JsonResponse({"ststus":'successfully loggedin','token':token},status=200)
+                return JsonResponse({"ststus":'successfully loggedin','token':token,"issued_at":issuesd_time,"expired at":expired_time,"expired_in":int((expired_time - issuesd_time).total_seconds() / 60),
+    },status=200)
             else:
                 return JsonResponse({"status":'failure','message':'invalid password'},ststus=400)
         except Users .DoesNotExist:
@@ -265,3 +273,22 @@ def hashed(request):
                 user.password = make_password(user.password)
                 user.save()
         return JsonResponse({"status":"success","message":"All passwords updated"}, status=200)
+
+@csrf_exempt
+def getAllusers(request):
+    if request.method == "GET":
+        users_list = list(Users.objects.values())
+        print(request.token_data,"token_data in view")
+        print(request.token_data.get("username"),"username from token")
+        print(Users,"Users list")
+        for user in users_list:
+            print(user["username"],"username from user list")
+            if user["username"]==request.token_data.get("username"):
+                return JsonResponse({"status": "success","loggedin_user":request.token_data,"data": users_list}, status=200)
+        else:
+                return JsonResponse({"error":"unauthorized access"},status=401)
+
+
+    
+
+ 

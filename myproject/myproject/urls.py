@@ -20,8 +20,8 @@ from django.urls import path
 
 from basic.views import sample,sample1,sampleInfo,dynamicResponse,health,addstudent
 from basic.views import addPost,get_all_students,filter_age_gte,filter_age_gte,order_by_name,get_unique_ages,count_students,job1,job2,check,login
-from basic.views import signUp,hashed,getAllusers
-
+from basic.views import signUp,hashed,getAllusers,home,about,welcome,contact,services,projects
+from basic2.views import bs2
 
 
 urlpatterns = [
@@ -46,6 +46,14 @@ urlpatterns = [
     path('login/',login),
     path('hashed/', hashed),
     path('users/',getAllusers),
+    path('home/',home, name='home'),
+    path('about/',about,name='about'),
+    path('welcome/',welcome,name='welcome'),
+    path('contact/',contact,name='contact'),
+    path('services/',services,name='services'),
+    path('projects/', projects, name='projects'),
+    path('bs2/',bs2)
+
 
     
     

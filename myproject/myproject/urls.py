@@ -21,7 +21,7 @@ from django.urls import path
 from basic.views import sample,sample1,sampleInfo,dynamicResponse,health,addstudent
 from basic.views import addPost,get_all_students,filter_age_gte,filter_age_gte,order_by_name,get_unique_ages,count_students,job1,job2,check,login
 from basic.views import signUp,hashed,getAllusers,home,about,welcome,contact,services,projects
-from basic2.views import bs2
+from basic2.views import bs2,productById,productBycategory,movivebyid
 
 
 urlpatterns = [
@@ -52,7 +52,10 @@ urlpatterns = [
     path('contact/',contact,name='contact'),
     path('services/',services,name='services'),
     path('projects/', projects, name='projects'),
-    path('bs2/',bs2)
+    path('bs2/',bs2),
+    path('product/<int:id>',productById),
+    path('product/category/<str:ctg>',productBycategory),
+    path('movie/<int:id>',movivebyid),
 
 
     

@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'basic',
+    'basic2',
+    
 ]
 
 MIDDLEWARE = [
@@ -85,10 +87,25 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'django',  
+#         'USER': 'root',    
+#         'PASSWORD': 'Srivani@123', 
+#         'HOST': '127.0.0.1', 
+#         'PORT': '3310',
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#             'init_command': "SET sql_mode=STRICT_TRANS_TABLES",
+
+#         }
+#     }    
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django',  
+        'NAME': 'leveone',  
         'USER': 'root',    
         'PASSWORD': 'Srivani@123', 
         'HOST': '127.0.0.1', 
@@ -100,7 +117,6 @@ DATABASES = {
         }
     }    
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
